@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>剪刀石頭布</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff;
+            font-family: 'Arial', sans-serif;
+            font-size: 1.5em;
+        }
+        h1 {
+            font-size: 4em;
+            animation: colorChange 3s infinite, bounce 1s infinite alternate;
+        }
+        @keyframes colorChange {
+            0% { color: #ff6b6b; }
+            25% { color: #ffdb6b; }
+            50% { color: #6bff6b; }
+            75% { color: #6bdbff; }
+            100% { color: #6b6bff; }
+        }
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .button {
+            border: none;
+            border-radius: 50%;
+            background-color: transparent;
+            cursor: pointer;
+            margin: 20px;
+            transition: transform 0.2s;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid #007bff;
+            border-radius: 50%;
+        }
+        .button:hover {
+            transform: scale(1.1);
+        }
+        .button img {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>剪刀石頭布</h1>
+    <div class="button-container">
+        <button class="button" onclick="play('剪刀')">
+            <img src="1.jpg" alt="剪刀">
+        </button>
+        <button class="button" onclick="play('石頭')">
+            <img src="2.jpg" alt="石頭">
+        </button>
+        <button class="button" onclick="play('布')">
+            <img src="3.jpg" alt="布">
+        </button>
+    </div>
+
+    <audio id="resultMusic" preload="auto"></audio> <!-- 音樂播放器 -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let playerWins = 0;
+        let computerWins = 0;
+
+        const winMusic = 'win.mp3'; // 勝利音樂
+        const loseMusic = 'lose.mp3'; // 失敗音樂
+        const drawMusic = 'draw.mp3'; // 平手音樂
+        const resultMusic = document.getElementById('resultMusic');
+
+        function play(playerChoice) {
+            const choices = ['剪刀', '石頭', '布'];
+            const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result;
+
+            if (playerChoice === computerChoice) {
+                result = "平手！";
+                resultMusic.src = drawMusic;  // 播放平手音樂
+            } else if (
+                (playerChoice === '剪刀' && computerChoice === '布') ||
+                (playerChoice === '石頭' && computerChoice === '剪刀') ||
+                (playerChoice === '布' && computerChoice === '石頭')
+            ) {
+                result = "你贏了！";
+                playerWins++;
+                resultMusic.src = winMusic;  // 播放勝利音樂
+            } else {
+                result = "你輸了！";
+                computerWins++;
+                resultMusic.src = loseMusic;  // 播放失敗音樂
+            }
+
+            resultMusic.play();  // 播放對應音樂
+
+            if (playerWins === 3) {
+                Swal.fire({
+                    title: '恭喜你！',
+                    text: '你贏得了遊戲！',
+                    icon: 'success',
+                    confirmButtonText: '再玩一次',
+                    showCancelButton: true,
+                    cancelButtonText: '中止遊戲',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        resetGame();
+                    } else {
+                        Swal.fire('遊戲結束', '謝謝你的遊玩！', 'info');
+                    }
+                });
+            } else if (computerWins === 3) {
+                Swal.fire({
+                    title: '你輸了！',
+                    text: '電腦贏得了遊戲！',
+                    icon: 'error',
+                    confirmButtonText: '再玩一次',
+                    showCancelButton: true,
+                    cancelButtonText: '中止遊戲',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        resetGame();
+                    } else {
+                        Swal.fire('遊戲結束', '謝謝你的遊玩！', 'info');
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: '遊戲結果',
+                    html: `你選擇了：<strong>${playerChoice}</strong><br>電腦選擇了：<strong>${computerChoice}</strong><br><br>${result}<br><br>目前得分：你 ${playerWins} - ${computerWins} 電腦`,
+                    icon: result === "平手！" ? 'info' : result === "你贏了！" ? 'success' : 'error',
+                    confirmButtonText: '確認',
+                });
+            }
+        }
+
+        function resetGame() {
+            playerWins = 0;
+            computerWins = 0;
+        }
+    </script>
+</body>
+</html>
